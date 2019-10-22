@@ -243,3 +243,5 @@ while len(stack) != 0:
 
 print("Finished")
 cv2.imwrite('result2.jpg', frag2)
+
+#テスト
