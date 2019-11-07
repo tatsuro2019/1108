@@ -210,9 +210,9 @@ while len(stack) != 0:
     pyy = stack.pop()
     pxx = stack.pop()
     if (gray_test2[pyy][pxx] == 255):
+        gray_test2[pyy][pxx] = 0
         if (set(test_c[pyy][pxx]) == set(test_c[ca_y][ca_x])):
             frag2[pyy][pxx] = [255, 0, 255]
-            gray_test2[pyy][pxx] = 0
             if ((pyy+1 < height) & (gray_test2[pyy+1][pxx] == color)):
                 stack.append(pxx)
                 stack.append(pyy+1)
@@ -227,7 +227,6 @@ while len(stack) != 0:
                 stack.append(pyy)
         if (set(test_c[pyy][pxx]) == set(test_c[cb_y][cb_x])):
             frag2[pyy][pxx] = [255, 255, 0]
-            gray_test2[pyy][pxx] = 0
             if ((pyy+1 < height) & (gray_test2[pyy+1][pxx] == color)):
                 stack.append(pxx)
                 stack.append(pyy+1)
@@ -242,6 +241,56 @@ while len(stack) != 0:
                 stack.append(pyy)
 
 print("Finished")
-cv2.imwrite('result2.jpg', frag2)
+cv2.imwrite('result2.png', frag2)
 
-#テスト
+# 色領域A
+# 画像の読み込み
+color_1 = cv2.imread("input_c.bmp", cv2.IMREAD_COLOR)#BGRなので気をつける
+gray_test3 = cv2.imread("input.bmp", cv2.IMREAD_GRAYSCALE)
+frag3 = np.zeros(color_1.shape)#領域分割フラグ
+
+color = 255
+
+stack = [cv_x, cv_y]
+while len(stack) != 0:
+    #xyが逆　例:(27,26)→(y,x)
+    pyy = stack.pop()
+    pxx = stack.pop()
+    if (gray_test3[pyy][pxx] == 255):
+        gray_test3[pyy][pxx] = 0
+        if (set(color_1[pyy][pxx]) == set(color_1[ca_y][ca_x])):
+            frag3[pyy][pxx] = [255, 255, 255]
+            if ((pyy+1 < height) & (gray_test3[pyy+1][pxx] == color)):
+                stack.append(pxx)
+                stack.append(pyy+1)
+            if ((pxx+1 < width) & (gray_test3[pyy][pxx+1] == color)):
+                stack.append(pxx+1)
+                stack.append(pyy)
+            if (pyy-1 >= 0) & (gray_test3[pyy-1][pxx] == color):
+                stack.append(pxx)
+                stack.append(pyy-1)
+            if (pxx-1 >= 0) & (gray_test3[pyy][pxx-1] == color):
+                stack.append(pxx-1)
+                stack.append(pyy)
+
+print("色A領域")
+cv2.imwrite('color_1.png', frag3)
+
+# 膨張
+di_1 = cv2.imread('color_1.png', 0)
+kernel = np.ones((5, 5), np.uint8)
+cv2.imwrite('di_1.png', cv2.dilate(di_1, kernel, iterations = 1))
+
+# 色A領域(元画像)
+di_c1 = cv2.imread('color_1.png', 0)
+# 膨張画像
+di_a1 = cv2.imread('di_1.png', 0)
+# 結果反映用画像
+di_r1 = cv2.imread('di_1.png', 0)
+for i in range(height):
+    for j in range(width):
+        if (di_c1[i][j] == di_a1[i][j]):
+            di_r1[i][j] = 0
+
+# 膨張画像di_1と色領域Aの差分
+cv2.imwrite('gradient.png', di_r1)
