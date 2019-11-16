@@ -202,8 +202,6 @@ frag2 = np.zeros(test_c.shape)#領域分割フラグ
 # 画像の書き出し
 cv2.imwrite('test_c.bmp', test_c)
 
-color = 255
-
 stack = [cv_x, cv_y]
 while len(stack) != 0:
     #xyが逆　例:(27,26)→(y,x)
@@ -249,9 +247,7 @@ color_1 = cv2.imread("input_c.bmp", cv2.IMREAD_COLOR)#BGRなので気をつけ�
 gray_test3 = cv2.imread("input.bmp", cv2.IMREAD_GRAYSCALE)
 frag3 = np.zeros(color_1.shape)#領域分割フラグ
 
-color = 255
-
-stack = [cv_x, cv_y]
+stack = [ca_x, ca_y]
 while len(stack) != 0:
     #xyが逆　例:(27,26)→(y,x)
     pyy = stack.pop()
@@ -293,4 +289,101 @@ for i in range(height):
             di_r1[i][j] = 0
 
 # 膨張画像di_1と色領域Aの差分
-cv2.imwrite('gradient.png', di_r1)
+cv2.imwrite('gradient_a.png', di_r1)
+
+
+# 色領域B
+# 画像の読み込み
+color_2 = cv2.imread("input_c.bmp", cv2.IMREAD_COLOR)#BGRなので気をつける
+gray_test4 = cv2.imread("input.bmp", cv2.IMREAD_GRAYSCALE)
+frag4 = np.zeros(color_2.shape)#領域分割フラグ
+
+stack = [cb_x, cb_y]
+while len(stack) != 0:
+    #xyが逆　例:(27,26)→(y,x)
+    pyy = stack.pop()
+    pxx = stack.pop()
+    if (gray_test4[pyy][pxx] == 255):
+        gray_test4[pyy][pxx] = 0
+        if (set(color_2[pyy][pxx]) == set(color_1[cb_y][cb_x])):
+            frag4[pyy][pxx] = [255, 255, 255]
+            if ((pyy+1 < height) & (gray_test4[pyy+1][pxx] == color)):
+                stack.append(pxx)
+                stack.append(pyy+1)
+            if ((pxx+1 < width) & (gray_test4[pyy][pxx+1] == color)):
+                stack.append(pxx+1)
+                stack.append(pyy)
+            if (pyy-1 >= 0) & (gray_test4[pyy-1][pxx] == color):
+                stack.append(pxx)
+                stack.append(pyy-1)
+            if (pxx-1 >= 0) & (gray_test4[pyy][pxx-1] == color):
+                stack.append(pxx-1)
+                stack.append(pyy)
+
+print("色B領域")
+cv2.imwrite('color_2.png', frag4)
+
+# 膨張
+di_2 = cv2.imread('color_2.png', 0)
+cv2.imwrite('di_2.png', cv2.dilate(di_2, kernel, iterations = 1))
+
+# 色A領域(元画像)
+di_c2 = cv2.imread('color_2.png', 0)
+# 膨張画像
+di_a2 = cv2.imread('di_2.png', 0)
+# 結果反映用画像
+di_r2 = cv2.imread('di_2.png', 0)
+for i in range(height):
+    for j in range(width):
+        if (di_c2[i][j] == di_a2[i][j]):
+            di_r2[i][j] = 0
+
+# 膨張画像di_2と色領域Bの差分
+cv2.imwrite('gradient_b.png', di_r2)
+
+# 膨張Aと色B領域の重なり部分の処理
+# 膨張差分A
+gr_a = cv2.imread('gradient_a.png', 0)
+# 色B領域
+cregion_b = cv2.imread('color_2.png', 0)
+# 反映先画像
+tile_a = np.zeros(color_2.shape)
+for i in range(height):
+    for j in range(width):
+        if ((gr_a[i][j] == 255) & (cregion_b[i][j] == 255)):
+            tile_a[i][j] = 255
+
+# タイルパターン領域aの生成
+cv2.imwrite('tile_a.png', tile_a)
+
+# 膨張Bと色A領域の重なり部分の処理
+# 膨張差分B
+gr_b = cv2.imread('gradient_b.png', 0)
+# 色B領域
+cregion_a = cv2.imread('color_1.png', 0)
+# 反映先画像
+tile_b = np.zeros(color_2.shape)
+for i in range(height):
+    for j in range(width):
+        if ((gr_b[i][j] == 255) & (cregion_a[i][j] == 255)):
+            tile_b[i][j] = 255
+
+# タイルパターン領域bの生成
+cv2.imwrite('tile_b.png', tile_b)
+
+
+
+# タイルパターン領域aとbの合成
+# 膨張差分B
+tile_a2 = cv2.imread('tile_a.png', 0)
+# 色B領域
+tile_b2 = cv2.imread('tile_b.png', 0)
+# 反映先画像
+tile_ab = np.zeros(color_2.shape)
+for i in range(height):
+    for j in range(width):
+        if (tile_a2[i][j] != tile_b2[i][j]):
+            tile_ab[i][j] = 255
+
+# タイルパターン領域bの生成
+cv2.imwrite('tile_ab.png', tile_ab)
