@@ -327,7 +327,7 @@ cv2.imwrite('color_2.png', frag4)
 di_2 = cv2.imread('color_2.png', 0)
 cv2.imwrite('di_2.png', cv2.dilate(di_2, kernel, iterations = 1))
 
-# 色A領域(元画像)
+# 色B領域(元画像)
 di_c2 = cv2.imread('color_2.png', 0)
 # 膨張画像
 di_a2 = cv2.imread('di_2.png', 0)
@@ -355,6 +355,8 @@ for i in range(height):
 
 # タイルパターン領域aの生成
 cv2.imwrite('tile_a.png', tile_a)
+
+
 
 # 膨張Bと色A領域の重なり部分の処理
 # 膨張差分B
@@ -385,5 +387,120 @@ for i in range(height):
         if (tile_a2[i][j] != tile_b2[i][j]):
             tile_ab[i][j] = 255
 
-# タイルパターン領域bの生成
+# タイルパターン領域abの生成
 cv2.imwrite('tile_ab.png', tile_ab)
+
+# 真ん中領域の膨張
+# 膨張
+center_b = cv2.imread('tile_ab.png', 0)
+cv2.imwrite('center_b.png', cv2.dilate(center_b, kernel, iterations = 1))
+center_bb = cv2.imread('center_b.png', 0)
+# 結果反映用画像
+center_ll = cv2.imread('center_b.png', 0)
+# 膨張画像との差分
+for i in range(height):
+    for j in range(width):
+        if (center_bb[i][j] == center_b[i][j]):
+            center_ll[i][j] = 0
+
+cv2.imwrite('center_ll.png', center_ll)
+
+
+# 左領域(A)(di_c1)との共通部分
+# 色A領域(元画像) di_c1 = cv2.imread('color_1.png', 0)
+# 結果反映用画像
+tile_left = np.zeros(color_2.shape)
+for i in range(height):
+    for j in range(width):
+        if ((center_ll[i][j] == 255) & (di_c1[i][j] == 255)):
+            tile_left[i][j] = 255
+
+# 膨張画像center_llと色領域A(di_c1=color_1.png)の重なり部分
+cv2.imwrite('tile_left.png', tile_left)
+
+# 右領域(B)(di_c2)との共通部分
+# 色B領域(元画像) di_c2 = cv2.imread('color_2.png', 0)
+# 結果反映用画像
+tile_right = np.zeros(color_2.shape)
+for i in range(height):
+    for j in range(width):
+        if ((center_ll[i][j] == 255) & (di_c2[i][j] == 255)):
+            tile_right[i][j] = 255
+
+# 膨張画像center_llと色領域B(di_c2=color_2.png)の重なり部分
+cv2.imwrite('tile_right.png', tile_right)
+
+
+# タイルパターン領域abとright,leftの合成
+# 真ん中center_b = cv2.imread('tile_ab.png', 0)
+# 右領域
+tile_br = cv2.imread('tile_right.png', 0)
+# 左領域
+tile_bl = cv2.imread('tile_left.png', 0)
+# 反映先画像
+tile_rabl = np.zeros(color_2.shape)
+for i in range(height):
+    for j in range(width):
+        if (tile_br[i][j] != center_b[i][j]):
+            tile_rabl[i][j] = 255
+        if (tile_bl[i][j] != center_b[i][j]):
+            tile_rabl[i][j] = 255
+
+# タイルパターン領域abの生成
+cv2.imwrite('tile_rabl.png', tile_rabl)
+
+
+# 局所探索領域の作成
+# abとright,leftの合成画像
+tile_rabl2 = cv2.imread('tile_rabl.png', 0)
+# 縦方向走査
+check_p = 0
+count_s = 0
+count_t = 0
+for i in range(width):
+    for j in range(height):
+        if (tile_rabl2[j][i] == 255):
+            if check_p == 0:
+                left_x = i
+                check_p = 1
+                break
+            else:
+                right_x = i
+                count_s += 1
+                break
+    if count_s != 0:
+        count_t += 1
+        if count_s != count_t:
+            break
+
+print(left_x, right_x)
+# 横方向走査
+check_p = 0
+count_s = 0
+count_t = 0
+for i in range(height):
+    for j in range(width):
+        if (tile_rabl2[i][j] == 255):
+            if check_p == 0:
+                up_y = i
+                check_p = 1
+                break
+            else:
+                under_y = i
+                count_s += 1
+                break
+    if count_s != 0:
+        count_t += 1
+        if count_s != count_t:
+            break
+
+print(up_y, under_y)
+
+# 反映先画像
+lsr = np.zeros(color_2.shape)
+for i in range(up_y, under_y+1):
+    for j in range(left_x, right_x+1):
+        lsr[i][j] = 255
+
+# タイルパターンを施す長方形画像の生成
+cv2.imwrite('lsr.png', lsr)
