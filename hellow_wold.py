@@ -72,24 +72,24 @@ if __name__ == "__main__":
             file = open('point_y.txt', 'w')
             file.write(str(mouseData.getY()))
             file.close()
-        # 右クリックがあったら終了
+        # Mクリックがあったら終了
         elif mouseData.getEvent() == cv2.EVENT_MBUTTONUP:
             break;
 
     cv2.destroyAllWindows()
 
-#画像の読み込み
+# 画像の読み込み
 test = cv2.imread("input.bmp", cv2.IMREAD_COLOR)#BGRなので気をつける
 gray_test = cv2.imread("input.bmp",cv2.IMREAD_GRAYSCALE)
 width = test.shape[0]
 height = test.shape[1]
 frag = np.zeros(gray_test.shape)#領域分割フラグ
 
-#画像の書き出し
+# 画像の書き出し
 cv2.imwrite('test.bmp', test)
 cv2.imwrite('gray_test.bmp',gray_test)
 
-#初期地点
+# 初期地点
 file_data = open('point_x.txt', 'r')
 lines_x = file_data.readline()
 file_data.close()
@@ -145,34 +145,59 @@ if __name__ == "__main__":
     mouseData = mouseParam(window_name)
 
     print("色を二色選んでください\n色A:左クリック\n色B:右クリック\n終了:ホイール押し込み")
+    magnification = 1
     while 1:
         cv2.waitKey(20)
-        # 左クリックがあったら表示
+        # 左クリックで座標表示＆色取得
         if mouseData.getEvent() == cv2.EVENT_LBUTTONDOWN:
-            print(mouseData.getPos())
-            file = open('color_a_x.txt', 'w')
-            file.write(str(mouseData.getX()))
-            file.close()
-            file = open('color_a_y.txt', 'w')
-            file.write(str(mouseData.getY()))
-            file.close()
-        # 右クリックで差表表示＆色取得
+            if magnification == 1:
+                print(mouseData.getPos())
+                file = open('color_a_x.txt', 'w')
+                file.write(str(mouseData.getX()))
+                file.close()
+                file = open('color_a_y.txt', 'w')
+                file.write(str(mouseData.getY()))
+                file.close()
+            else:
+                print("(", mouseData.getX()//magnification, ",", mouseData.getY()//magnification, ")")
+                file = open('color_a_x.txt', 'w')
+                file.write(str(mouseData.getX()//magnification))
+                file.close()
+                file = open('color_a_y.txt', 'w')
+                file.write(str(mouseData.getY()//magnification))
+                file.close()
+        # 右クリックで座標表示＆色取得
         if mouseData.getEvent() == cv2.EVENT_RBUTTONDOWN:
-            print(mouseData.getPos())
-            file = open('color_b_x.txt', 'w')
-            file.write(str(mouseData.getX()))
-            file.close()
-            file = open('color_b_y.txt', 'w')
-            file.write(str(mouseData.getY()))
-            file.close()
+            if magnification == 1:
+                print(mouseData.getPos())
+                file = open('color_b_x.txt', 'w')
+                file.write(str(mouseData.getX()))
+                file.close()
+                file = open('color_b_y.txt', 'w')
+                file.write(str(mouseData.getY()))
+                file.close()
+            else:
+                print("(", mouseData.getX()//magnification, ",", mouseData.getY()//magnification, ")")
+                file = open('color_b_x.txt', 'w')
+                file.write(str(mouseData.getX()//magnification))
+                file.close()
+                file = open('color_b_y.txt', 'w')
+                file.write(str(mouseData.getY()//magnification))
+                file.close()
+        # 20Fescキー長押しで画像の2倍
+        if cv2.waitKey(20) & 0xFF == 27:
+                zoomed_image = read.repeat(magnification*2, axis=0).repeat(magnification*2, axis=1)
+                cv2.imshow(window_name, zoomed_image)
+                magnification = magnification*2
+                cv2.waitKey(80)
         # Mボタンクリックがあったら終了
         elif mouseData.getEvent() == cv2.EVENT_MBUTTONUP:
-            break;
+            break
 
     cv2.destroyAllWindows()
 
 # 座標の書き出し
-#色A
+# 色A
 file_data = open('color_a_x.txt', 'r')
 lines_x = file_data.readline()
 file_data.close()
@@ -274,7 +299,7 @@ cv2.imwrite('color_1.png', frag3)
 
 # 膨張
 di_1 = cv2.imread('color_1.png', 0)
-kernel = np.ones((5, 5), np.uint8)
+kernel = np.ones((3, 3), np.uint8)
 cv2.imwrite('di_1.png', cv2.dilate(di_1, kernel, iterations = 1))
 
 # 色A領域(元画像)
@@ -504,3 +529,108 @@ for i in range(up_y, under_y+1):
 
 # タイルパターンを施す長方形画像の生成
 cv2.imwrite('lsr.png', lsr)
+
+
+# 50%パターン
+# 結果反映用画像lsr2
+tile_50 = cv2.imread('lsr.png', 0)
+if ((up_y + left_x) % 2) == 0:
+    upper_left_c = 0
+else:
+    upper_left_c = 1
+for i in range(up_y, under_y+1):
+    for j in range(left_x, right_x+1):
+        if upper_left_c == 0:
+            if ((i + j) % 2) == 1:
+                tile_50[i][j] = 0
+        else:
+            if ((i + j) % 2) == 0:
+                tile_50[i][j] = 0
+
+# 50%確認用
+cv2.imwrite('tile_50.png', tile_50)
+
+# 50%タイル実装
+# 画像の読み込み　color_2 = cv2.imread("input_c.bmp", cv2.IMREAD_COLOR)#BGRなので気をつける
+# 真ん中(50%)のTRP center_b = cv2.imread('tile_ab.png', 0)
+# 色A座標 ca_x = int(lines_x),ca_y = int(lines_y)
+# 色B座標 cb_x = int(lines_x),cb_y = int(lines_y)
+# 結果反映用画像finish_50
+finish_50 = cv2.imread("input_c.bmp", cv2.IMREAD_COLOR)
+for i in range(up_y, under_y+1):
+    for j in range(left_x, right_x+1):
+        if (tile_50[i][j] == 255) & (center_b[i][j] == 255):
+            finish_50[i][j] = color_2[ca_y][ca_x]
+        if (tile_50[i][j] == 0) & (center_b[i][j] == 255):
+            finish_50[i][j] = color_2[cb_y][cb_x]
+
+# 50%確認用
+cv2.imwrite('finish_50.png', finish_50)
+
+
+# 25%パターン
+# 結果反映用画像tile_25
+tile_25 = cv2.imread('lsr.png', 0)
+if ((up_y + left_x) % 2) == 0:
+    upper_left_c = 0
+else:
+    upper_left_c = 1
+Nol = 0
+for i in range(up_y, under_y+1):
+    if (Nol % 2) != 0:
+        for j in range(left_x, right_x+1, 2):
+                tile_25[i][j] = 0
+    Nol += 1
+# 25%確認用
+cv2.imwrite('tile_25.png', tile_25)
+
+# 50%タイル画像に25%タイル実装
+# 画像の読み込み　color_2 = cv2.imread("input_c.bmp", cv2.IMREAD_COLOR)#BGRなので気をつける
+# 左領域(25%)tile_bl = cv2.imread('tile_left.png', 0)
+# 色A座標 ca_x = int(lines_x),ca_y = int(lines_y)
+# 色B座標 cb_x = int(lines_x),cb_y = int(lines_y)
+for i in range(up_y, under_y+1):
+    for j in range(left_x, right_x+1):
+        if (tile_25[i][j] == 255) & (tile_bl[i][j] == 255):
+            finish_50[i][j] = color_2[ca_y][ca_x]
+        if (tile_25[i][j] == 0) & (tile_bl[i][j] == 255):
+            finish_50[i][j] = color_2[cb_y][cb_x]
+
+# 50%+25%適用確認用
+cv2.imwrite('finish_50+25.png', finish_50)
+
+
+# 75%パターン
+# 結果反映用画像lsr2
+tile_75 = cv2.imread('lsr.png', 0)
+Nol =0
+for i in range(up_y, under_y+1):
+    if (Nol % 2) == 0:
+        for j in range(left_x, right_x+1):
+            if upper_left_c == 0:
+                if ((i + j) % 2) == 1:
+                    tile_75[i][j] = 0
+            else:
+                if ((i + j) % 2) == 0:
+                    tile_75[i][j] = 0
+    else:
+        for j in range(left_x, right_x + 1):
+            tile_75[i][j] = 0
+    Nol += 1
+# 50%確認用
+cv2.imwrite('tile_75.png', tile_75)
+
+# 50+25%タイル画像に75%タイル実装
+# 画像の読み込み　color_2 = cv2.imread("input_c.bmp", cv2.IMREAD_COLOR)#BGRなので気をつける
+# 右領域(75%)tile_br = cv2.imread('tile_right.png', 0)
+# 色A座標 ca_x = int(lines_x),ca_y = int(lines_y)
+# 色B座標 cb_x = int(lines_x),cb_y = int(lines_y)
+for i in range(up_y, under_y+1):
+    for j in range(left_x, right_x+1):
+        if (tile_75[i][j] == 255) & (tile_br[i][j] == 255):
+            finish_50[i][j] = color_2[ca_y][ca_x]
+        if (tile_75[i][j] == 0) & (tile_br[i][j] == 255):
+            finish_50[i][j] = color_2[cb_y][cb_x]
+
+# 50%+25%適用確認用
+cv2.imwrite('finish_50+25+75.png', finish_50)
