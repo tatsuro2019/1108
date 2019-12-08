@@ -571,10 +571,6 @@ cv2.imwrite('finish_50.png', finish_50)
 # 25%パターン
 # 結果反映用画像tile_25
 tile_25 = cv2.imread('lsr.png', 0)
-if ((up_y + left_x) % 2) == 0:
-    upper_left_c = 0
-else:
-    upper_left_c = 1
 Nol = 0
 for i in range(up_y, under_y+1):
     if (Nol % 2) != 0:
@@ -617,7 +613,7 @@ for i in range(up_y, under_y+1):
         for j in range(left_x, right_x + 1):
             tile_75[i][j] = 0
     Nol += 1
-# 50%確認用
+# 75%確認用
 cv2.imwrite('tile_75.png', tile_75)
 
 # 50+25%タイル画像に75%タイル実装
@@ -632,5 +628,71 @@ for i in range(up_y, under_y+1):
         if (tile_75[i][j] == 0) & (tile_br[i][j] == 255):
             finish_50[i][j] = color_2[cb_y][cb_x]
 
-# 50%+25%適用確認用
+# 50%+25%+75%適用確認用
 cv2.imwrite('finish_50+25+75.png', finish_50)
+
+# 12.5%パターン
+# 結果反映用画像tile_12
+tile_12 = cv2.imread('lsr.png', 0)
+Nol = 0
+check_tile_12 = 0
+for i in range(up_y, under_y+1):
+    if (Nol % 2) != 0:
+        if (check_tile_12 % 2) == 0:
+            for j in range(left_x, right_x+1, 4):
+                tile_12[i][j] = 0
+        else:
+            for j in range(left_x + 2, right_x + 1, 4):
+                tile_12[i][j] = 0
+        check_tile_12 += 1
+    Nol += 1
+# 12.5%確認用
+cv2.imwrite('tile_12.5.png', tile_12)
+
+# 37.5%パターン
+# 結果反映用画像tile_37
+tile_37 = cv2.imread('lsr.png', 0)
+Nol = 0
+for i in range(up_y, under_y+1):
+    if Nol != 0:
+        if (Nol % 2) == 0:
+            if (Nol % 4) == 0:
+                for j in range(left_x + 3, right_x + 1, 4):
+                    tile_37[i][j] = 0
+            else:
+                for j in range(left_x + 1, right_x + 1, 4):
+                    tile_37[i][j] = 0
+        else:
+            if upper_left_c == 0:
+                for j in range(left_x, right_x + 1):
+                    if ((i + j) % 2) == 1:
+                        tile_37[i][j] = 0
+            else:
+                for j in range(left_x, right_x + 1):
+                    if ((i + j) % 2) == 0:
+                        tile_37[i][j] = 0
+    Nol += 1
+# 37.5%確認用
+cv2.imwrite('tile_37.5.png', tile_37)
+
+# ここまでタイル
+
+# R, G, Bの値を取得して0～1の範囲内にする
+[blue, green, red] = color_2[ca_y][ca_x]/255.0
+# R, G, Bの値から最大値と最小値を計算
+mx_v1 = max(red, green, blue)
+
+# 同文b
+[blue, green, red] = color_2[cb_y][cb_x]/255.0
+mx_v2 = max(red, green, blue)
+
+if mx_v2 > mx_v1:
+    region_weight_a = 2
+    region_weight_b = 0
+    region_weight_ab = 1
+else:
+    region_weight_a = 0
+    region_weight_b = 2
+    region_weight_ab = 1
+
+print(region_weight_a, region_weight_b, region_weight_ab)
