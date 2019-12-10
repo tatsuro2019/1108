@@ -2,6 +2,7 @@
 
 import numpy as np
 import cv2
+import random
 
 
 class mouseParam:
@@ -73,8 +74,8 @@ if __name__ == "__main__":
             file.write(str(mouseData.getY()))
             file.close()
         # Mクリックがあったら終了
-        elif mouseData.getEvent() == cv2.EVENT_MBUTTONUP:
-            break;
+        elif mouseData.getEvent() == cv2.EVENT_MBUTTONDOWN:
+            break
 
     cv2.destroyAllWindows()
 
@@ -191,7 +192,7 @@ if __name__ == "__main__":
                 magnification = magnification*2
                 cv2.waitKey(80)
         # Mボタンクリックがあったら終了
-        elif mouseData.getEvent() == cv2.EVENT_MBUTTONUP:
+        elif mouseData.getEvent() == cv2.EVENT_MBUTTONDOWN:
             break
 
     cv2.destroyAllWindows()
@@ -530,6 +531,7 @@ for i in range(up_y, under_y+1):
 # タイルパターンを施す長方形画像の生成
 cv2.imwrite('lsr.png', lsr)
 
+# ここからタイルパターン設定
 
 # 50%パターン
 # 結果反映用画像lsr2
@@ -675,11 +677,94 @@ for i in range(up_y, under_y+1):
 # 37.5%確認用
 cv2.imwrite('tile_37.5.png', tile_37)
 
+# 62.5%パターン
+# 結果反映用画像tile_62
+tile_62 = cv2.imread('lsr.png', 0)
+Nol = 0
+check_tile_62 = 1
+for i in range(up_y, under_y+1):
+    if (Nol % 2) != 0:
+        if (Nol % 4) == 3:
+            check_tile_62 = 3
+            for j in range(left_x, right_x + 1):
+                if (check_tile_62 % 4) != 0:
+                    tile_62[i][j] = 0
+                    check_tile_62 += 1
+                else:
+                    check_tile_62 += 1
+            check_tile_62 = 1
+        else:
+            for j in range(left_x, right_x + 1):
+                if (check_tile_62 % 4) != 0:
+                    tile_62[i][j] = 0
+                    check_tile_62 += 1
+                else:
+                    check_tile_62 += 1
+            check_tile_62 = 1
+    else:
+        if upper_left_c == 0:
+            for j in range(left_x, right_x + 1):
+                if ((i + j) % 2) == 1:
+                    tile_62[i][j] = 0
+        else:
+            for j in range(left_x, right_x + 1):
+                if ((i + j) % 2) == 0:
+                    tile_62[i][j] = 0
+    Nol += 1
+# 62.5%確認用
+cv2.imwrite('tile_62.5.png', tile_62)
+
+# 87.5%パターン
+# 結果反映用画像tile_87
+tile_87 = cv2.imread('lsr.png', 0)
+Nol = 0
+check_tile_87 = 1
+for i in range(up_y, under_y+1):
+    if (Nol % 2) != 0:
+        if (Nol % 4) == 3:
+            for j in range(left_x, right_x + 1):
+                if (check_tile_87 % 4) != 0:
+                    tile_87[i][j] = 0
+                    check_tile_87 += 1
+                else:
+                    check_tile_87 += 1
+            check_tile_87 = 1
+        else:
+            check_tile_87 = 3
+            for j in range(left_x, right_x + 1):
+                if (check_tile_87 % 4) != 0:
+                    tile_87[i][j] = 0
+                    check_tile_87 += 1
+                else:
+                    check_tile_87 += 1
+            check_tile_87 = 1
+    else:
+        for j in range(left_x, right_x + 1):
+            tile_87[i][j] = 0
+    Nol += 1
+# 87.5%確認用
+cv2.imwrite('tile_87.5.png', tile_87)
+
+# 100%パターン
+# 結果反映用画像tile_100
+tile_100 = cv2.imread('lsr.png', 0)
+for i in range(up_y, under_y+1):
+    for j in range(left_x, right_x + 1):
+        tile_100[i][j] = 0
+# 100%確認用
+cv2.imwrite('tile_100.png', tile_100)
+
+# 0%パターン
+# 結果反映用画像tile_0
+tile_0 = cv2.imread('lsr.png', 0)
+# 0%確認用
+cv2.imwrite('tile_0.png', tile_0)
+
 # ここまでタイル
 
 # R, G, Bの値を取得して0～1の範囲内にする
 [blue, green, red] = color_2[ca_y][ca_x]/255.0
-# R, G, Bの値から最大値と最小値を計算
+# R, G, Bの値から最大値を計算
 mx_v1 = max(red, green, blue)
 
 # 同文b
@@ -696,3 +781,108 @@ else:
     region_weight_ab = 1
 
 print(region_weight_a, region_weight_b, region_weight_ab)
+
+# 領域反映ファンクション
+
+def tile_set_ab(x, y, z):
+    for i in range(up_y, under_y + 1):
+        for j in range(left_x, right_x + 1):
+            if (x[i][j] == 255) & (y[i][j] == 255):
+                z[i][j] = color_2[ca_y][ca_x]
+            if (x[i][j] == 0) & (y[i][j] == 255):
+                z[i][j] = color_2[cb_y][cb_x]
+
+def tile_set_check_lr(x, y, z):
+    if y == 100:
+        tile_set_ab(x, tile_br, z)
+    elif y == 0:
+        tile_set_ab(x, tile_bl, z)
+    else:
+        tile_set_ab(x, center_b, z)
+
+def tile_set_check_no(x, y, z):
+    if x == 1:
+        tile_set_check_lr(tile_12, y, z)
+    elif x == 2:
+        tile_set_check_lr(tile_25, y, z)
+    elif x == 3:
+        tile_set_check_lr(tile_37, y, z)
+    elif x == 4:
+        tile_set_check_lr(tile_50, y, z)
+    elif x == 5:
+        tile_set_check_lr(tile_62, y, z)
+    elif x == 6:
+        tile_set_check_lr(tile_75, y, z)
+    elif x == 7:
+        tile_set_check_lr(tile_87, y, z)
+    elif x == 8:
+        tile_set_check_lr(tile_100, y, z)
+    else:
+        tile_set_check_lr(tile_0, y, z)
+
+
+def rand_set(x):
+    # 0~99の整数を1個作成
+    check_ctile_no = random.randint(0, 99)
+    if check_ctile_no <= 4:
+        ctile_no = 1
+    elif (check_ctile_no >= 5) & (check_ctile_no <= 14):
+        ctile_no = 2
+    elif (check_ctile_no >= 15) & (check_ctile_no <= 34):
+        ctile_no = 3
+    elif (check_ctile_no >= 35) & (check_ctile_no <= 64):
+        ctile_no = 4
+    elif (check_ctile_no >= 65) & (check_ctile_no <= 84):
+        ctile_no = 5
+    elif (check_ctile_no >= 85) & (check_ctile_no <= 94):
+        ctile_no = 6
+    else:
+        ctile_no = 7
+
+    if region_weight_a == 0:
+        ltile_no = random.randint(0, ctile_no - 1)
+        rtile_no = random.randint(ctile_no + 1, 8)
+        tile_set_check_no(ltile_no, 0, x)
+        tile_set_check_no(rtile_no, 100, x)
+        tile_set_check_no(ctile_no, 50, x)
+    else:
+        rtile_no = random.randint(0, ctile_no - 1)
+        ltile_no = random.randint(ctile_no + 1, 8)
+        tile_set_check_no(ltile_no, 100, x)
+        tile_set_check_no(rtile_no, 0, x)
+        tile_set_check_no(ctile_no, 50, x)
+
+    print("各タイルNo:", ltile_no, rtile_no, ctile_no)
+    return ltile_no, rtile_no, ctile_no
+
+
+finish_1 = cv2.imread("input_c.bmp", cv2.IMREAD_COLOR)
+lt_no, rt_no, ct_no = rand_set(finish_1)
+tile_resource = [[lt_no, rt_no, ct_no]]
+cv2.imwrite('finish_1.png', finish_1)
+
+finish_2 = cv2.imread("input_c.bmp", cv2.IMREAD_COLOR)
+lt_no2, rt_no2, ct_no2 = rand_set(finish_2)
+tile_resource.append([lt_no2, rt_no2, ct_no2])
+cv2.imwrite('finish_2.png', finish_2)
+
+print(tile_resource[1][1])
+
+while 1:
+    # 入力画像
+    suggestion_0_1 = cv2.imread("finish_1.png")
+    # 表示するWindow名
+    window_name_0_1 = "suggestion_0_1"
+    # 画像の表示
+    cv2.imshow(window_name_0_1, suggestion_0_1)
+    # Window位置の変更　第1引数：Windowの名前　第2引数：x 第3引数：y
+    cv2.moveWindow('suggestion_0_1', 100, 200)
+
+    suggestion_0_2 = cv2.imread("finish_2.png")
+    window_name_0_2 = "suggestion_0_2"
+    cv2.imshow(window_name_0_2, suggestion_0_2)
+    cv2.moveWindow('suggestion_0_2', 250, 200)
+    if cv2.waitKey(20) & 0xFF == 27:
+        break
+
+cv2.destroyAllWindows()
