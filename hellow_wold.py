@@ -760,7 +760,7 @@ tile_0 = cv2.imread('lsr.png', 0)
 # 0%確認用
 cv2.imwrite('tile_0.png', tile_0)
 
-# ここまでタイル
+# =========================ここまでタイル================================
 
 # R, G, Bの値を取得して0～1の範囲内にする
 [blue, green, red] = color_2[ca_y][ca_x]/255.0
@@ -780,10 +780,11 @@ else:
     region_weight_b = 2
     region_weight_ab = 1
 
+# 領域の重み確認用
+print("領域a,b,abの重み")
 print(region_weight_a, region_weight_b, region_weight_ab)
 
 # 領域反映ファンクション
-
 def tile_set_ab(x, y, z):
     for i in range(up_y, under_y + 1):
         for j in range(left_x, right_x + 1):
@@ -792,6 +793,7 @@ def tile_set_ab(x, y, z):
             if (x[i][j] == 0) & (y[i][j] == 255):
                 z[i][j] = color_2[cb_y][cb_x]
 
+# 作業領域の選定
 def tile_set_check_lr(x, y, z):
     if y == 100:
         tile_set_ab(x, tile_br, z)
@@ -800,6 +802,7 @@ def tile_set_check_lr(x, y, z):
     else:
         tile_set_ab(x, center_b, z)
 
+# 使用タイルの選別
 def tile_set_check_no(x, y, z):
     if x == 1:
         tile_set_check_lr(tile_12, y, z)
@@ -820,7 +823,18 @@ def tile_set_check_no(x, y, z):
     else:
         tile_set_check_lr(tile_0, y, z)
 
+# 領域の重み判別
+def tile_relay(x, y, z, op):
+    if region_weight_a == 0:
+        tile_set_check_no(x, 0, op)
+        tile_set_check_no(y, 100, op)
+        tile_set_check_no(z, 50, op)
+    else:
+        tile_set_check_no(x, 100, op)
+        tile_set_check_no(y, 0, op)
+        tile_set_check_no(z, 50, op)
 
+# 乱数の生成
 def rand_set(x):
     # 0~99の整数を1個作成
     check_ctile_no = random.randint(0, 99)
@@ -842,20 +856,16 @@ def rand_set(x):
     if region_weight_a == 0:
         ltile_no = random.randint(0, ctile_no - 1)
         rtile_no = random.randint(ctile_no + 1, 8)
-        tile_set_check_no(ltile_no, 0, x)
-        tile_set_check_no(rtile_no, 100, x)
-        tile_set_check_no(ctile_no, 50, x)
+        tile_relay(ltile_no, rtile_no, ctile_no, x)
     else:
         rtile_no = random.randint(0, ctile_no - 1)
         ltile_no = random.randint(ctile_no + 1, 8)
-        tile_set_check_no(ltile_no, 100, x)
-        tile_set_check_no(rtile_no, 0, x)
-        tile_set_check_no(ctile_no, 50, x)
+        tile_relay(ltile_no, rtile_no, ctile_no, x)
 
     print("各タイルNo:", ltile_no, rtile_no, ctile_no)
     return ltile_no, rtile_no, ctile_no
 
-
+# 初期解の生成及び引数の格納
 finish_1 = cv2.imread("input_c.bmp", cv2.IMREAD_COLOR)
 lt_no, rt_no, ct_no = rand_set(finish_1)
 tile_resource = [[lt_no, rt_no, ct_no]]
@@ -866,8 +876,40 @@ lt_no2, rt_no2, ct_no2 = rand_set(finish_2)
 tile_resource.append([lt_no2, rt_no2, ct_no2])
 cv2.imwrite('finish_2.png', finish_2)
 
-print(tile_resource[1][1])
+finish_3 = cv2.imread("input_c.bmp", cv2.IMREAD_COLOR)
+lt_no3, rt_no3, ct_no3 = rand_set(finish_3)
+tile_resource.append([lt_no3, rt_no3, ct_no3])
+cv2.imwrite('finish_3.png', finish_3)
 
+finish_4 = cv2.imread("input_c.bmp", cv2.IMREAD_COLOR)
+lt_no4, rt_no4, ct_no4 = rand_set(finish_4)
+tile_resource.append([lt_no4, rt_no4, ct_no4])
+cv2.imwrite('finish_4.png', finish_4)
+
+finish_5 = cv2.imread("input_c.bmp", cv2.IMREAD_COLOR)
+lt_no5, rt_no5, ct_no5 = rand_set(finish_5)
+tile_resource.append([lt_no5, rt_no5, ct_no5])
+cv2.imwrite('finish_5.png', finish_5)
+
+finish_6 = cv2.imread("input_c.bmp", cv2.IMREAD_COLOR)
+lt_no6, rt_no6, ct_no6 = rand_set(finish_6)
+tile_resource.append([lt_no6, rt_no6, ct_no6])
+cv2.imwrite('finish_6.png', finish_6)
+
+finish_7 = cv2.imread("input_c.bmp", cv2.IMREAD_COLOR)
+lt_no7, rt_no7, ct_no7 = rand_set(finish_7)
+tile_resource.append([lt_no7, rt_no7, ct_no7])
+cv2.imwrite('finish_7.png', finish_7)
+
+finish_8 = cv2.imread("input_c.bmp", cv2.IMREAD_COLOR)
+lt_no8, rt_no8, ct_no8 = rand_set(finish_8)
+tile_resource.append([lt_no8, rt_no8, ct_no8])
+cv2.imwrite('finish_8.png', finish_8)
+
+# print(tile_resource[1][1])
+
+# ===================================初期解の表示および選択===================================
+print("いずれかの画像をアクティブにしescキーを押すと次に進みます")
 while 1:
     # 入力画像
     suggestion_0_1 = cv2.imread("finish_1.png")
@@ -882,7 +924,373 @@ while 1:
     window_name_0_2 = "suggestion_0_2"
     cv2.imshow(window_name_0_2, suggestion_0_2)
     cv2.moveWindow('suggestion_0_2', 250, 200)
+
+    suggestion_0_3 = cv2.imread("finish_3.png")
+    window_name_0_3 = "suggestion_0_3"
+    cv2.imshow(window_name_0_3, suggestion_0_3)
+    cv2.moveWindow('suggestion_0_3', 400, 200)
+
+    suggestion_0_4 = cv2.imread("finish_4.png")
+    window_name_0_4 = "suggestion_0_4"
+    cv2.imshow(window_name_0_4, suggestion_0_4)
+    cv2.moveWindow('suggestion_0_4', 550, 200)
+
+    suggestion_0_5 = cv2.imread("finish_5.png")
+    window_name_0_5 = "suggestion_0_5"
+    cv2.imshow(window_name_0_5, suggestion_0_5)
+    cv2.moveWindow('suggestion_0_5', 100, 350)
+
+    suggestion_0_6 = cv2.imread("finish_6.png")
+    window_name_0_6 = "suggestion_0_6"
+    cv2.imshow(window_name_0_6, suggestion_0_6)
+    cv2.moveWindow('suggestion_0_6', 250, 350)
+
+    suggestion_0_7 = cv2.imread("finish_7.png")
+    window_name_0_7 = "suggestion_0_7"
+    cv2.imshow(window_name_0_7, suggestion_0_7)
+    cv2.moveWindow('suggestion_0_7', 400, 350)
+
+    suggestion_0_8 = cv2.imread("finish_8.png")
+    window_name_0_8 = "suggestion_0_8"
+    cv2.imshow(window_name_0_8, suggestion_0_8)
+    cv2.moveWindow('suggestion_0_8', 550, 350)
+
     if cv2.waitKey(20) & 0xFF == 27:
-        break
+        print("好きな画像を1~8で二つ選んでください")
+        pick_1 = input("一つ目の好みの画像の番号:")
+        pick_1 = int(pick_1)
+        pick_2 = input("二つ目の好みの画像の番号:")
+        pick_2 = int(pick_2)
+        if (pick_1 >= 1) & (pick_1 <= 8):
+            if (pick_2 >= 1) & (pick_2 <= 8):
+                if pick_1 == pick_2:
+                    print("同じ数字が入力されています")
+                else:
+                    break
+        print("もう一度選択しなおしてください\nいずれかの画像をアクティブにしescキーで次に進みます")
+        continue
 
 cv2.destroyAllWindows()
+print(pick_1, pick_2)
+for i in range(3):
+    print("ピックされた画像1のタイルNo:", tile_resource[pick_1 - 1][i])
+for i in range(3):
+    print("ピックされた画像2のタイルNo:", tile_resource[pick_2 - 1][i])
+
+def set_picture_1_2(x, y, z):
+    # 選択した解をfinish_1,2に入れなおす
+    finish_1 = cv2.imread("input_c.bmp", cv2.IMREAD_COLOR)
+    tile_relay(x[y][0], x[y][1], x[y][2], finish_1)
+    cv2.imwrite('finish_1.png', finish_1)
+
+    finish_2 = cv2.imread("input_c.bmp", cv2.IMREAD_COLOR)
+    tile_relay(x[z][0], x[z][1], x[z][2], finish_2)
+    cv2.imwrite('finish_2.png', finish_2)
+
+set_picture_1_2(tile_resource, pick_1 - 1, pick_2 - 1)
+
+# ================================遺伝的アルゴリズム===============================
+# 交叉
+cross_rand = random.randint(0, 98)
+if cross_rand % 3 == 0:
+    cross_son = [[tile_resource[pick_2 - 1][0], tile_resource[pick_1 - 1][1], tile_resource[pick_1 - 1][2]],
+                 [tile_resource[pick_1 - 1][0], tile_resource[pick_2 - 1][1], tile_resource[pick_2 - 1][2]]]
+elif cross_rand % 3 == 1:
+    cross_son = [[tile_resource[pick_1 - 1][0], tile_resource[pick_2 - 1][1], tile_resource[pick_1 - 1][2]],
+                 [tile_resource[pick_2 - 1][0], tile_resource[pick_1 - 1][1], tile_resource[pick_2 - 1][2]]]
+else:
+    cross_son = [[tile_resource[pick_1 - 1][0], tile_resource[pick_1 - 1][1], tile_resource[pick_2 - 1][2]],
+                 [tile_resource[pick_2 - 1][0], tile_resource[pick_2 - 1][1], tile_resource[pick_1 - 1][2]]]
+
+def cross_rand_made(a, b, c, d):
+    cross_rand = random.randint(0, 98)
+    if len(a) != 0:
+        a.pop()
+        a.pop()
+    if cross_rand % 3 == 0:
+        a.append([b[d][0], b[c][1], b[c][2]])
+        a.append([b[c][0], b[d][1], b[d][2]])
+    elif cross_rand % 3 == 1:
+        a.append([b[c][0], b[d][1], b[c][2]])
+        a.append([b[d][0], b[c][1], b[d][2]])
+    else:
+        a.append([b[c][0], b[c][1], b[d][2]])
+        a.append([b[d][0], b[d][1], b[c][2]])
+
+# 交叉確認用
+print("交叉")
+for i in range(2):
+    print(cross_son[i][0], cross_son[i][1], cross_son[i][2])
+
+
+def mutation_add_sort():
+    # 突然変異
+    mutation_rand = random.randint(0, 99) % 2
+    select_rand = random.randint(0, 98) % 3
+    plus_or_minus = random.randint(0, 99) % 2
+    if cross_son[mutation_rand][select_rand] == 8:
+        cross_son[mutation_rand][select_rand] = cross_son[mutation_rand][select_rand] - 1
+    elif cross_son[mutation_rand][select_rand] == 0:
+        cross_son[mutation_rand][select_rand] = cross_son[mutation_rand][select_rand] + 1
+    else:
+        if plus_or_minus == 0:
+            cross_son[mutation_rand][select_rand] = cross_son[mutation_rand][select_rand] - 1
+        else:
+            cross_son[mutation_rand][select_rand] = cross_son[mutation_rand][select_rand] + 1
+
+    # 突然変異確認用
+    print("突然変異後")
+    for i in range(2):
+        print(cross_son[i][0], cross_son[i][1], cross_son[i][2])
+
+    # ソート
+    # 最小,中間,最大でソート
+    for i in range(2):
+        for j in range(2):
+            for k in range(j + 1, 3):
+                if cross_son[i][j] > cross_son[i][k]:
+                    cross_change = cross_son[i][j]
+                    cross_son[i][j] = cross_son[i][k]
+                    cross_son[i][k] = cross_change
+    # 最小,最大,中間でソート
+    for i in range(2):
+        cross_change = cross_son[i][1]
+        cross_son[i][1] = cross_son[i][2]
+        cross_son[i][2] = cross_change
+
+    # ソート確認用
+    print("ソート")
+    for i in range(2):
+        print(cross_son[i][0], cross_son[i][1], cross_son[i][2])
+
+mutation_add_sort()
+
+def picture_store():
+    # 子をfinish_3,4に格納
+    finish_3 = cv2.imread("input_c.bmp", cv2.IMREAD_COLOR)
+    tile_relay(cross_son[0][0], cross_son[0][1], cross_son[0][2], finish_3)
+    cv2.imwrite('finish_3.png', finish_3)
+
+    finish_4 = cv2.imread("input_c.bmp", cv2.IMREAD_COLOR)
+    tile_relay(cross_son[1][0], cross_son[1][1], cross_son[1][2], finish_4)
+    cv2.imwrite('finish_4.png', finish_4)
+
+    print("いずれかの画像をアクティブにしescキーを押すと次に進みます")
+    while 1:
+        # 入力画像
+        suggestion_0_1 = cv2.imread("finish_1.png")
+        # 表示するWindow名
+        window_name_0_1 = "suggestion_0_1"
+        # 画像の表示
+        cv2.imshow(window_name_0_1, suggestion_0_1)
+        # Window位置の変更　第1引数：Windowの名前　第2引数：x 第3引数：y
+        cv2.moveWindow('suggestion_0_1', 100, 200)
+
+        suggestion_0_2 = cv2.imread("finish_2.png")
+        window_name_0_2 = "suggestion_0_2"
+        cv2.imshow(window_name_0_2, suggestion_0_2)
+        cv2.moveWindow('suggestion_0_2', 250, 200)
+
+        suggestion_0_3 = cv2.imread("finish_3.png")
+        window_name_0_3 = "suggestion_0_3"
+        cv2.imshow(window_name_0_3, suggestion_0_3)
+        cv2.moveWindow('suggestion_0_3', 400, 200)
+
+        suggestion_0_4 = cv2.imread("finish_4.png")
+        window_name_0_4 = "suggestion_0_4"
+        cv2.imshow(window_name_0_4, suggestion_0_4)
+        cv2.moveWindow('suggestion_0_4', 550, 200)
+
+        if cv2.waitKey(20) & 0xFF == 27:
+            global pick_2_1
+            global pick_2_2
+            pick_2_1 = input("一番好みの画像の番号:")
+            pick_2_1 = int(pick_2_1)
+            pick_2_2 = input("二番目に好みの画像の番号:")
+            pick_2_2 = int(pick_2_2)
+            if (pick_2_1 >= 1) & (pick_2_1 <= 4):
+                if (pick_2_2 >= 1) & (pick_2_2 <= 4):
+                    if pick_2_1 == pick_2_2:
+                        print("同じ数字が入力されています")
+                    else:
+                        break
+            print("もう一度選択しなおしてください\nいずれかの画像をアクティブにしescキーで次に進みます")
+            continue
+
+    cv2.destroyAllWindows()
+    print(pick_2_1, pick_2_2)
+
+# pick_2_1,2ソート(小さい順)
+#if pick_2_1 > pick_2_2:
+#    pick_change = pick_2_1
+#    pick_2_1 = pick_2_2
+#    pick_2_2 = pick_change
+
+picture_store()
+
+# 適応度
+fitness = 89
+
+# 子が共に優秀であるとき
+if ((pick_2_1 == 3) & (pick_2_2 == 4)) | ((pick_2_1 == 4) & (pick_2_2 == 3)):
+    fitness_1 = ((tile_resource[pick_1 - 1][0]*tile_resource[pick_1 - 1][0])
+                 + (tile_resource[pick_1 - 1][1] * tile_resource[pick_1 - 1][1])
+                 + (tile_resource[pick_1 - 1][2] * tile_resource[pick_1 - 1][2])) / 3
+    fitness_2 = ((tile_resource[pick_2 - 1][0] * tile_resource[pick_2 - 1][0])
+                 + (tile_resource[pick_2 - 1][1] * tile_resource[pick_2 - 1][1])
+                 + (tile_resource[pick_2 - 1][2] * tile_resource[pick_2 - 1][2])) / 3
+    fitness_89_1_abs = abs(89 - fitness_1)
+    fitness_89_2_abs = abs(89 - fitness_2)
+    if fitness_89_1_abs <= fitness_89_2_abs:
+        local_group = [[tile_resource[pick_1 - 1][0], tile_resource[pick_1 - 1][1], tile_resource[pick_1 - 1][2]],
+                       [cross_son[0][0], cross_son[0][1], cross_son[0][2]],
+                       [cross_son[1][0], cross_son[1][1], cross_son[1][2]]]
+
+    else:
+        local_group = [[tile_resource[pick_2 - 1][0], tile_resource[pick_2 - 1][1], tile_resource[pick_2 - 1][2]],
+                       [cross_son[0][0], cross_son[0][1], cross_son[0][2]],
+                       [cross_son[1][0], cross_son[1][1], cross_son[1][2]]]
+
+# 親が共に優秀であるとき
+if ((pick_2_1 == 1) & (pick_2_2 == 2)) | ((pick_2_1 == 2) & (pick_2_2 == 1)):
+    fitness_1 = ((tile_resource[pick_1 - 1][0]*tile_resource[pick_1 - 1][0])
+                 + (tile_resource[pick_1 - 1][1] * tile_resource[pick_1 - 1][1])
+                 + (tile_resource[pick_1 - 1][2] * tile_resource[pick_1 - 1][2])) / 3
+    fitness_2 = ((tile_resource[pick_2 - 1][0] * tile_resource[pick_2 - 1][0])
+                 + (tile_resource[pick_2 - 1][1] * tile_resource[pick_2 - 1][1])
+                 + (tile_resource[pick_2 - 1][2] * tile_resource[pick_2 - 1][2])) / 3
+    fitness_89_1_abs = abs(89 - fitness_1)
+    fitness_89_2_abs = abs(89 - fitness_2)
+    # 解候補を新しく設定
+    finish_1 = cv2.imread("input_c.bmp", cv2.IMREAD_COLOR)
+    lt_no9, rt_no9, ct_no9 = rand_set(finish_1)
+    if fitness_89_1_abs <= fitness_89_2_abs:
+        local_group = [[tile_resource[pick_1 - 1][0], tile_resource[pick_1 - 1][1], tile_resource[pick_1 - 1][2]],
+                       [lt_no9, rt_no9, ct_no9]]
+    else:
+        local_group = [[tile_resource[pick_2 - 1][0], tile_resource[pick_2 - 1][1], tile_resource[pick_2 - 1][2]],
+                       [lt_no9, rt_no9, ct_no9]]
+
+# どちらかの親一個が子より優秀(子1子1)親a>子a>(親bor子b)
+if ((pick_2_1 == 1) & (pick_2_2 != 2)) | ((pick_2_1 == 2) & (pick_2_2 != 1)):
+    fitness_1 = ((tile_resource[pick_1 - 1][0]*tile_resource[pick_1 - 1][0])
+                 + (tile_resource[pick_1 - 1][1] * tile_resource[pick_1 - 1][1])
+                 + (tile_resource[pick_1 - 1][2] * tile_resource[pick_1 - 1][2])) / 3
+    fitness_2 = ((tile_resource[pick_2 - 1][0] * tile_resource[pick_2 - 1][0])
+                 + (tile_resource[pick_2 - 1][1] * tile_resource[pick_2 - 1][1])
+                 + (tile_resource[pick_2 - 1][2] * tile_resource[pick_2 - 1][2])) / 3
+    fitness_89_1_abs = abs(89 - fitness_1)
+    fitness_89_2_abs = abs(89 - fitness_2)
+    if fitness_89_1_abs <= fitness_89_2_abs:
+        local_group = [[tile_resource[pick_1 - 1][0], tile_resource[pick_1 - 1][1], tile_resource[pick_1 - 1][2]],
+                       [cross_son[pick_2_2 - 3][0], cross_son[pick_2_2 - 3][1], cross_son[pick_2_2 - 3][2]]]
+
+    else:
+        local_group = [[tile_resource[pick_2 - 1][0], tile_resource[pick_2 - 1][1], tile_resource[pick_2 - 1][2]],
+                       [cross_son[pick_2_2 - 3][0], cross_son[pick_2_2 - 3][1], cross_son[pick_2_2 - 3][2]]]
+
+# どちらかの子一個が親より優秀(子1)子a>(親a or 親b)>子b
+if ((pick_2_1 == 3) & (pick_2_2 != 4)) | ((pick_2_1 == 4) & (pick_2_2 != 3)):
+    # 解候補を新しく設定
+    finish_1 = cv2.imread("input_c.bmp", cv2.IMREAD_COLOR)
+    lt_no9, rt_no9, ct_no9 = rand_set(finish_1)
+    local_group = [[lt_no9, rt_no9, ct_no9],
+                   [cross_son[pick_2_1 - 3][0], cross_son[pick_2_1 - 3][1], cross_son[pick_2_1 - 3][2]]]
+
+def conditional_branch(x, y):
+    relay_local_group = [[local_group[x][0], local_group[x][1], local_group[x][2]],
+                         [local_group[y][0], local_group[y][1], local_group[y][2]]]
+    local_group.pop(y)
+    local_group.pop(x)
+    fitness_1 = ((relay_local_group[0][0] * relay_local_group[0][0])
+                 + (relay_local_group[0][1] * relay_local_group[0][1])
+                 + (relay_local_group[0][2] * relay_local_group[0][2])) / 3
+    fitness_2 = ((relay_local_group[1][0] * relay_local_group[1][0])
+                 + (relay_local_group[1][1] * relay_local_group[1][1])
+                 + (relay_local_group[1][2] * relay_local_group[1][2])) / 3
+    fitness_89_1_abs = abs(89 - fitness_1)
+    fitness_89_2_abs = abs(89 - fitness_2)
+    # 子が共に優秀であるとき
+    if ((pick_2_1 == 3) & (pick_2_2 == 4)) | ((pick_2_1 == 4) & (pick_2_2 == 3)):
+        if fitness_89_1_abs <= fitness_89_2_abs:
+            local_group.append([relay_local_group[0][0], relay_local_group[0][1], relay_local_group[0][2]])
+            local_group.append([cross_son[0][0], cross_son[0][1], cross_son[0][2]])
+            local_group.append([cross_son[1][0], cross_son[1][1], cross_son[1][2]])
+        else:
+            local_group.append([relay_local_group[1][0], relay_local_group[1][1], relay_local_group[1][2]])
+            local_group.append([cross_son[0][0], cross_son[0][1], cross_son[0][2]])
+            local_group.append([cross_son[1][0], cross_son[1][1], cross_son[1][2]])
+
+    # 親が共に優秀であるとき
+    if ((pick_2_1 == 1) & (pick_2_2 == 2)) | ((pick_2_1 == 2) & (pick_2_2 == 1)):
+        # 解候補を新しく設定
+        finish_1 = cv2.imread("input_c.bmp", cv2.IMREAD_COLOR)
+        lt_no9, rt_no9, ct_no9 = rand_set(finish_1)
+        if fitness_89_1_abs <= fitness_89_2_abs:
+            local_group.append([relay_local_group[0][0], relay_local_group[0][1], relay_local_group[0][2]])
+            local_group.append([lt_no9, rt_no9, ct_no9])
+        else:
+            local_group.append([relay_local_group[1][0], relay_local_group[1][1], relay_local_group[1][2]])
+            local_group.append([lt_no9, rt_no9, ct_no9])
+
+    # どちらかの親一個が子より優秀(子1子1)親a>子a>(親bor子b)
+    if ((pick_2_1 == 1) & (pick_2_2 != 2)) | ((pick_2_1 == 2) & (pick_2_2 != 1)):
+        if fitness_89_1_abs <= fitness_89_2_abs:
+            local_group.append([relay_local_group[0][0], relay_local_group[0][1], relay_local_group[0][2]])
+            local_group.append([cross_son[pick_2_2 - 3][0], cross_son[pick_2_2 - 3][1], cross_son[pick_2_2 - 3][2]])
+        else:
+            local_group.append([relay_local_group[1][0], relay_local_group[1][1], relay_local_group[1][2]])
+            local_group.append([cross_son[pick_2_2 - 3][0], cross_son[pick_2_2 - 3][1], cross_son[pick_2_2 - 3][2]])
+
+    # どちらかの子一個が親より優秀(子1)子a>(親a or 親b)>子b
+    if ((pick_2_1 == 3) & (pick_2_2 != 4)) | ((pick_2_1 == 4) & (pick_2_2 != 3)):
+        # 解候補を新しく設定
+        finish_1 = cv2.imread("input_c.bmp", cv2.IMREAD_COLOR)
+        lt_no9, rt_no9, ct_no9 = rand_set(finish_1)
+        local_group.append([lt_no9, rt_no9, ct_no9])
+        local_group.append([cross_son[pick_2_1 - 3][0], cross_son[pick_2_1 - 3][1], cross_son[pick_2_1 - 3][2]])
+
+# 確認用
+# print(local_group[0][0], local_group[0][1], local_group[0][2],)
+# print(local_group[1][0], local_group[1][1], local_group[1][2],)
+# print(local_group[2][0], local_group[2][1], local_group[2][2],)
+
+for j in range(4):
+    # 個体番号の選別
+    local_group_rand_1 = random.randint(0, len(local_group) - 1) % len(local_group)
+    local_group_rand_2 = random.randint(0, len(local_group) - 1) % len(local_group)
+    while local_group_rand_1 == local_group_rand_2:
+        local_group_rand_2 = random.randint(0, len(local_group) - 1) % len(local_group)
+
+    # 小さい順ソート
+    if local_group_rand_1 > local_group_rand_2:
+        local_group_rand_change = local_group_rand_1
+        local_group_rand_1 = local_group_rand_2
+        local_group_rand_2 = local_group_rand_change
+
+    cross_rand_made(cross_son, local_group, local_group_rand_1, local_group_rand_2)
+    # 交叉確認用
+    print("交叉", j + 1, "回目")
+    for i in range(2):
+        print(cross_son[i][0], cross_son[i][1], cross_son[i][2])
+    mutation_add_sort()
+    set_picture_1_2(local_group, local_group_rand_1, local_group_rand_2)
+    picture_store()
+    if j ==3:
+        break
+    else:
+        conditional_branch(local_group_rand_1, local_group_rand_2)
+
+
+finish_9 = cv2.imread("input_c.bmp", cv2.IMREAD_COLOR)
+if pick_2_1 == 1:
+    tile_relay(local_group[local_group_rand_1][0], local_group[local_group_rand_1][1],
+               local_group[local_group_rand_1][2], finish_9)
+elif pick_2_1 == 2:
+    tile_relay(local_group[local_group_rand_2][0], local_group[local_group_rand_2][1],
+               local_group[local_group_rand_2][2], finish_9)
+elif pick_2_1 == 3:
+    tile_relay(cross_son[0][0], cross_son[0][1], cross_son[0][2], finish_9)
+else:
+    tile_relay(cross_son[1][0], cross_son[1][1], cross_son[1][2], finish_9)
+cv2.imwrite('finish_9.png', finish_9)
