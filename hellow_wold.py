@@ -1268,20 +1268,28 @@ for j in range(4):
         local_group_rand_1 = local_group_rand_2
         local_group_rand_2 = local_group_rand_change
 
+    # 交叉
     cross_rand_made(cross_son, local_group, local_group_rand_1, local_group_rand_2)
+    print("親A")
+    print(local_group[local_group_rand_1][0], local_group[local_group_rand_1][1], local_group[local_group_rand_1][2])
+    print("親B")
+    print(local_group[local_group_rand_2][0], local_group[local_group_rand_2][1], local_group[local_group_rand_2][2])
     # 交叉確認用
     print("交叉", j + 1, "回目")
     for i in range(2):
         print(cross_son[i][0], cross_son[i][1], cross_son[i][2])
+    # 突然変異
     mutation_add_sort()
+    # 親世代画像
     set_picture_1_2(local_group, local_group_rand_1, local_group_rand_2)
+    # 子世代画像
     picture_store()
-    if j ==3:
+    if j == 3:
         break
     else:
         conditional_branch(local_group_rand_1, local_group_rand_2)
 
-
+# 最終世代
 finish_9 = cv2.imread("input_c.bmp", cv2.IMREAD_COLOR)
 if pick_2_1 == 1:
     tile_relay(local_group[local_group_rand_1][0], local_group[local_group_rand_1][1],
@@ -1294,3 +1302,40 @@ elif pick_2_1 == 3:
 else:
     tile_relay(cross_son[1][0], cross_son[1][1], cross_son[1][2], finish_9)
 cv2.imwrite('finish_9.png', finish_9)
+
+# 既存手法画像の生成
+finish_0 = cv2.imread("input_c.bmp", cv2.IMREAD_COLOR)
+tile_relay(2, 6, 4, finish_0)
+cv2.imwrite('finish_0.png', finish_0)
+
+# 既存と提案手法の比較
+print("いずれかの画像をアクティブにしescキーを押すと次に進みます")
+while 1:
+    # 入力画像
+    suggestion_0_1 = cv2.imread("finish_0.png")
+    # 表示するWindow名
+    window_name_0_1 = "suggestion_0_1"
+    # 画像の表示
+    cv2.imshow(window_name_0_1, suggestion_0_1)
+    # Window位置の変更　第1引数：Windowの名前　第2引数：x 第3引数：y
+    cv2.moveWindow('suggestion_0_1', 100, 200)
+
+    suggestion_0_2 = cv2.imread("finish_9.png")
+    window_name_0_2 = "suggestion_0_2"
+    cv2.imshow(window_name_0_2, suggestion_0_2)
+    cv2.moveWindow('suggestion_0_2', 250, 200)
+
+    if cv2.waitKey(20) & 0xFF == 27:
+        pick_2_1 = input("一番好みの画像の番号:")
+        pick_2_1 = int(pick_2_1)
+        if (pick_2_1 >= 1) & (pick_2_1 <= 2):
+            break
+        print("もう一度選択しなおしてください\nいずれかの画像をアクティブにしescキーで次に進みます")
+        continue
+
+cv2.destroyAllWindows()
+
+if pick_2_1 == 0:
+    print("従来")
+else:
+    print("提案手法")
