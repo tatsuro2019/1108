@@ -1022,21 +1022,34 @@ print("交叉")
 for i in range(2):
     print(cross_son[i][0], cross_son[i][1], cross_son[i][2])
 
-
 def mutation_add_sort():
     # 突然変異
+    # 行う個所数
+    select_rand = [0, 0, 0]
+    timese_rand = (random.randint(0, 98) % 3) + 1
+
     mutation_rand = random.randint(0, 99) % 2
-    select_rand = random.randint(0, 98) % 3
-    plus_or_minus = random.randint(0, 99) % 2
-    if cross_son[mutation_rand][select_rand] == 8:
-        cross_son[mutation_rand][select_rand] = cross_son[mutation_rand][select_rand] - 1
-    elif cross_son[mutation_rand][select_rand] == 0:
-        cross_son[mutation_rand][select_rand] = cross_son[mutation_rand][select_rand] + 1
-    else:
-        if plus_or_minus == 0:
-            cross_son[mutation_rand][select_rand] = cross_son[mutation_rand][select_rand] - 1
+    for i in range(3):
+        select_rand[i] = random.randint(0, 98) % 3
+    while (select_rand[0] == select_rand[1]):
+        select_rand[1] = random.randint(0, 98) % 3
+    while (select_rand[2] == select_rand[1]) | (select_rand[2] == select_rand[0]):
+        select_rand[2] = random.randint(0, 98) % 3
+    # time_rand確認用
+    print("timese_rand:", timese_rand)
+    # select_rand確認用
+    print("select_rand:", select_rand[0], select_rand[1], select_rand[2])
+
+    for i in range(timese_rand):
+        plus_or_minus = random.randint(0, 99) % 2
+        if cross_son[mutation_rand][select_rand[i]] == 8:
+            cross_son[mutation_rand][select_rand[i]] = cross_son[mutation_rand][select_rand[i]] - 1
+        elif cross_son[mutation_rand][select_rand[i]] == 0:
+            cross_son[mutation_rand][select_rand[i]] = cross_son[mutation_rand][select_rand[i]] + 1
+        elif plus_or_minus == 0:
+            cross_son[mutation_rand][select_rand[i]] = cross_son[mutation_rand][select_rand[i]] - 1
         else:
-            cross_son[mutation_rand][select_rand] = cross_son[mutation_rand][select_rand] + 1
+            cross_son[mutation_rand][select_rand[i]] = cross_son[mutation_rand][select_rand[i]] + 1
 
     # 突然変異確認用
     print("突然変異後")
