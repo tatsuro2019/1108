@@ -988,6 +988,8 @@ def set_picture_1_2(x, y, z):
     cv2.imwrite('finish_2.png', finish_2)
 
 set_picture_1_2(tile_resource, pick_1 - 1, pick_2 - 1)
+cv2.imwrite('finish_1_f.png', finish_1)
+cv2.imwrite('finish_2_f.png', finish_2)
 
 # ================================遺伝的アルゴリズム===============================
 # 交叉
@@ -1288,7 +1290,7 @@ for j in range(4):
     print("親B")
     print(local_group[local_group_rand_2][0], local_group[local_group_rand_2][1], local_group[local_group_rand_2][2])
     # 交叉確認用
-    print("交叉", j + 1, "回目")
+    print("交叉", j + 2, "回目")
     for i in range(2):
         print(cross_son[i][0], cross_son[i][1], cross_son[i][2])
     # 突然変異
@@ -1338,17 +1340,29 @@ while 1:
     cv2.imshow(window_name_0_2, suggestion_0_2)
     cv2.moveWindow('suggestion_0_2', 250, 200)
 
+    suggestion_0_3 = cv2.imread("finish_1_f.png")
+    window_name_0_3 = "suggestion_0_3"
+    cv2.imshow(window_name_0_3, suggestion_0_3)
+    cv2.moveWindow('suggestion_0_3', 400, 200)
+
+    suggestion_0_4 = cv2.imread("finish_2_f.png")
+    window_name_0_4 = "suggestion_0_4"
+    cv2.imshow(window_name_0_4, suggestion_0_4)
+    cv2.moveWindow('suggestion_0_4', 550, 200)
+
     if cv2.waitKey(20) & 0xFF == 27:
         pick_2_1 = input("一番好みの画像の番号:")
         pick_2_1 = int(pick_2_1)
-        if (pick_2_1 >= 1) & (pick_2_1 <= 2):
+        if (pick_2_1 >= 1) & (pick_2_1 <= 4):
             break
         print("もう一度選択しなおしてください\nいずれかの画像をアクティブにしescキーで次に進みます")
         continue
 
 cv2.destroyAllWindows()
 
-if pick_2_1 == 0:
+if pick_2_1 == 1:
     print("従来")
-else:
+elif pick_2_1 == 2:
     print("提案手法")
+else:
+    print("初期解")
