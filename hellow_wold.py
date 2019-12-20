@@ -988,8 +988,10 @@ def set_picture_1_2(x, y, z):
     cv2.imwrite('finish_2.png', finish_2)
 
 set_picture_1_2(tile_resource, pick_1 - 1, pick_2 - 1)
-cv2.imwrite('finish_1_f.png', finish_1)
-cv2.imwrite('finish_2_f.png', finish_2)
+finish_1_f = cv2.imread("finish_1.png", cv2.IMREAD_COLOR)
+cv2.imwrite('finish_1_f.png', finish_1_f)
+finish_2_f = cv2.imread("finish_2.png", cv2.IMREAD_COLOR)
+cv2.imwrite('finish_2_f.png', finish_2_f)
 
 # ================================遺伝的アルゴリズム===============================
 # 交叉
@@ -1144,7 +1146,7 @@ def picture_store():
 picture_store()
 
 # 適応度
-fitness = 89
+fitness = 80
 
 # 子が共に優秀であるとき
 if ((pick_2_1 == 3) & (pick_2_2 == 4)) | ((pick_2_1 == 4) & (pick_2_2 == 3)):
@@ -1154,8 +1156,8 @@ if ((pick_2_1 == 3) & (pick_2_2 == 4)) | ((pick_2_1 == 4) & (pick_2_2 == 3)):
     fitness_2 = ((tile_resource[pick_2 - 1][0] * tile_resource[pick_2 - 1][0])
                  + (tile_resource[pick_2 - 1][1] * tile_resource[pick_2 - 1][1])
                  + (tile_resource[pick_2 - 1][2] * tile_resource[pick_2 - 1][2])) / 3
-    fitness_89_1_abs = abs(89 - fitness_1)
-    fitness_89_2_abs = abs(89 - fitness_2)
+    fitness_89_1_abs = abs(80 - fitness_1)
+    fitness_89_2_abs = abs(80 - fitness_2)
     if fitness_89_1_abs <= fitness_89_2_abs:
         local_group = [[tile_resource[pick_1 - 1][0], tile_resource[pick_1 - 1][1], tile_resource[pick_1 - 1][2]],
                        [cross_son[0][0], cross_son[0][1], cross_son[0][2]],
@@ -1174,8 +1176,8 @@ if ((pick_2_1 == 1) & (pick_2_2 == 2)) | ((pick_2_1 == 2) & (pick_2_2 == 1)):
     fitness_2 = ((tile_resource[pick_2 - 1][0] * tile_resource[pick_2 - 1][0])
                  + (tile_resource[pick_2 - 1][1] * tile_resource[pick_2 - 1][1])
                  + (tile_resource[pick_2 - 1][2] * tile_resource[pick_2 - 1][2])) / 3
-    fitness_89_1_abs = abs(89 - fitness_1)
-    fitness_89_2_abs = abs(89 - fitness_2)
+    fitness_89_1_abs = abs(80 - fitness_1)
+    fitness_89_2_abs = abs(80 - fitness_2)
     # 解候補を新しく設定
     finish_1 = cv2.imread("input_c.bmp", cv2.IMREAD_COLOR)
     lt_no9, rt_no9, ct_no9 = rand_set(finish_1)
@@ -1194,8 +1196,8 @@ if ((pick_2_1 == 1) & (pick_2_2 != 2)) | ((pick_2_1 == 2) & (pick_2_2 != 1)):
     fitness_2 = ((tile_resource[pick_2 - 1][0] * tile_resource[pick_2 - 1][0])
                  + (tile_resource[pick_2 - 1][1] * tile_resource[pick_2 - 1][1])
                  + (tile_resource[pick_2 - 1][2] * tile_resource[pick_2 - 1][2])) / 3
-    fitness_89_1_abs = abs(89 - fitness_1)
-    fitness_89_2_abs = abs(89 - fitness_2)
+    fitness_89_1_abs = abs(80 - fitness_1)
+    fitness_89_2_abs = abs(80 - fitness_2)
     if fitness_89_1_abs <= fitness_89_2_abs:
         local_group = [[tile_resource[pick_1 - 1][0], tile_resource[pick_1 - 1][1], tile_resource[pick_1 - 1][2]],
                        [cross_son[pick_2_2 - 3][0], cross_son[pick_2_2 - 3][1], cross_son[pick_2_2 - 3][2]]]
@@ -1223,8 +1225,8 @@ def conditional_branch(x, y):
     fitness_2 = ((relay_local_group[1][0] * relay_local_group[1][0])
                  + (relay_local_group[1][1] * relay_local_group[1][1])
                  + (relay_local_group[1][2] * relay_local_group[1][2])) / 3
-    fitness_89_1_abs = abs(89 - fitness_1)
-    fitness_89_2_abs = abs(89 - fitness_2)
+    fitness_89_1_abs = abs(80 - fitness_1)
+    fitness_89_2_abs = abs(80 - fitness_2)
     # 子が共に優秀であるとき
     if ((pick_2_1 == 3) & (pick_2_2 == 4)) | ((pick_2_1 == 4) & (pick_2_2 == 3)):
         if fitness_89_1_abs <= fitness_89_2_abs:
