@@ -1245,12 +1245,12 @@ def conditional_branch(x, y):
         lt_no9, rt_no9, ct_no9 = rand_set(finish_1)
         if fitness_89_1_abs <= fitness_89_2_abs:
             local_group.append([relay_local_group[0][0], relay_local_group[0][1], relay_local_group[0][2]])
-            local_group.append([lt_no9, rt_no9, ct_no9])
         else:
             local_group.append([relay_local_group[1][0], relay_local_group[1][1], relay_local_group[1][2]])
+        if len(local_group) == 1:
             local_group.append([lt_no9, rt_no9, ct_no9])
 
-    # どちらかの親一個が子より優秀(子1子1)親a>子a>(親bor子b)
+    # どちらかの親一個が子二人より優秀
     if ((pick_2_1 == 1) & (pick_2_2 != 2)) | ((pick_2_1 == 2) & (pick_2_2 != 1)):
         if fitness_89_1_abs <= fitness_89_2_abs:
             local_group.append([relay_local_group[0][0], relay_local_group[0][1], relay_local_group[0][2]])
