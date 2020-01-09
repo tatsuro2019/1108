@@ -1147,17 +1147,16 @@ picture_store()
 
 # 適応度
 fitness = 80
-
+fitness_1 = ((tile_resource[pick_1 - 1][0]*tile_resource[pick_1 - 1][0])
+             + (tile_resource[pick_1 - 1][1] * tile_resource[pick_1 - 1][1])
+             + (tile_resource[pick_1 - 1][2] * tile_resource[pick_1 - 1][2])) / 3
+fitness_2 = ((tile_resource[pick_2 - 1][0] * tile_resource[pick_2 - 1][0])
+             + (tile_resource[pick_2 - 1][1] * tile_resource[pick_2 - 1][1])
+             + (tile_resource[pick_2 - 1][2] * tile_resource[pick_2 - 1][2])) / 3
+fitness_89_1_abs = abs(80 - fitness_1)
+fitness_89_2_abs = abs(80 - fitness_2)
 # 子が共に優秀であるとき
 if ((pick_2_1 == 3) & (pick_2_2 == 4)) | ((pick_2_1 == 4) & (pick_2_2 == 3)):
-    fitness_1 = ((tile_resource[pick_1 - 1][0]*tile_resource[pick_1 - 1][0])
-                 + (tile_resource[pick_1 - 1][1] * tile_resource[pick_1 - 1][1])
-                 + (tile_resource[pick_1 - 1][2] * tile_resource[pick_1 - 1][2])) / 3
-    fitness_2 = ((tile_resource[pick_2 - 1][0] * tile_resource[pick_2 - 1][0])
-                 + (tile_resource[pick_2 - 1][1] * tile_resource[pick_2 - 1][1])
-                 + (tile_resource[pick_2 - 1][2] * tile_resource[pick_2 - 1][2])) / 3
-    fitness_89_1_abs = abs(80 - fitness_1)
-    fitness_89_2_abs = abs(80 - fitness_2)
     if fitness_89_1_abs <= fitness_89_2_abs:
         local_group = [[tile_resource[pick_1 - 1][0], tile_resource[pick_1 - 1][1], tile_resource[pick_1 - 1][2]],
                        [cross_son[0][0], cross_son[0][1], cross_son[0][2]],
@@ -1170,14 +1169,6 @@ if ((pick_2_1 == 3) & (pick_2_2 == 4)) | ((pick_2_1 == 4) & (pick_2_2 == 3)):
 
 # 親が共に優秀であるとき
 if ((pick_2_1 == 1) & (pick_2_2 == 2)) | ((pick_2_1 == 2) & (pick_2_2 == 1)):
-    fitness_1 = ((tile_resource[pick_1 - 1][0]*tile_resource[pick_1 - 1][0])
-                 + (tile_resource[pick_1 - 1][1] * tile_resource[pick_1 - 1][1])
-                 + (tile_resource[pick_1 - 1][2] * tile_resource[pick_1 - 1][2])) / 3
-    fitness_2 = ((tile_resource[pick_2 - 1][0] * tile_resource[pick_2 - 1][0])
-                 + (tile_resource[pick_2 - 1][1] * tile_resource[pick_2 - 1][1])
-                 + (tile_resource[pick_2 - 1][2] * tile_resource[pick_2 - 1][2])) / 3
-    fitness_89_1_abs = abs(80 - fitness_1)
-    fitness_89_2_abs = abs(80 - fitness_2)
     # 解候補を新しく設定
     finish_1 = cv2.imread("input_c.bmp", cv2.IMREAD_COLOR)
     lt_no9, rt_no9, ct_no9 = rand_set(finish_1)
@@ -1188,17 +1179,9 @@ if ((pick_2_1 == 1) & (pick_2_2 == 2)) | ((pick_2_1 == 2) & (pick_2_2 == 1)):
         local_group = [[tile_resource[pick_2 - 1][0], tile_resource[pick_2 - 1][1], tile_resource[pick_2 - 1][2]],
                        [lt_no9, rt_no9, ct_no9]]
 
-# どちらかの親一個が子より優秀(子1子1)親a>子a>(親bor子b)
+# どちらかの親一個が子二人より優秀
 if ((pick_2_1 == 1) & (pick_2_2 != 2)) | ((pick_2_1 == 2) & (pick_2_2 != 1)):
-    fitness_1 = ((tile_resource[pick_1 - 1][0]*tile_resource[pick_1 - 1][0])
-                 + (tile_resource[pick_1 - 1][1] * tile_resource[pick_1 - 1][1])
-                 + (tile_resource[pick_1 - 1][2] * tile_resource[pick_1 - 1][2])) / 3
-    fitness_2 = ((tile_resource[pick_2 - 1][0] * tile_resource[pick_2 - 1][0])
-                 + (tile_resource[pick_2 - 1][1] * tile_resource[pick_2 - 1][1])
-                 + (tile_resource[pick_2 - 1][2] * tile_resource[pick_2 - 1][2])) / 3
-    fitness_89_1_abs = abs(80 - fitness_1)
-    fitness_89_2_abs = abs(80 - fitness_2)
-    if fitness_89_1_abs <= fitness_89_2_abs:
+    if pick_2_1 == 1:
         local_group = [[tile_resource[pick_1 - 1][0], tile_resource[pick_1 - 1][1], tile_resource[pick_1 - 1][2]],
                        [cross_son[pick_2_2 - 3][0], cross_son[pick_2_2 - 3][1], cross_son[pick_2_2 - 3][2]]]
 
@@ -1219,6 +1202,8 @@ def conditional_branch(x, y):
                          [local_group[y][0], local_group[y][1], local_group[y][2]]]
     local_group.pop(y)
     local_group.pop(x)
+    # 確認用
+    print("local_group確認:", local_group)
     fitness_1 = ((relay_local_group[0][0] * relay_local_group[0][0])
                  + (relay_local_group[0][1] * relay_local_group[0][1])
                  + (relay_local_group[0][2] * relay_local_group[0][2])) / 3
@@ -1231,12 +1216,10 @@ def conditional_branch(x, y):
     if ((pick_2_1 == 3) & (pick_2_2 == 4)) | ((pick_2_1 == 4) & (pick_2_2 == 3)):
         if fitness_89_1_abs <= fitness_89_2_abs:
             local_group.append([relay_local_group[0][0], relay_local_group[0][1], relay_local_group[0][2]])
-            local_group.append([cross_son[0][0], cross_son[0][1], cross_son[0][2]])
-            local_group.append([cross_son[1][0], cross_son[1][1], cross_son[1][2]])
         else:
             local_group.append([relay_local_group[1][0], relay_local_group[1][1], relay_local_group[1][2]])
-            local_group.append([cross_son[0][0], cross_son[0][1], cross_son[0][2]])
-            local_group.append([cross_son[1][0], cross_son[1][1], cross_son[1][2]])
+        local_group.append([cross_son[0][0], cross_son[0][1], cross_son[0][2]])
+        local_group.append([cross_son[1][0], cross_son[1][1], cross_son[1][2]])
 
     # 親が共に優秀であるとき
     if ((pick_2_1 == 1) & (pick_2_2 == 2)) | ((pick_2_1 == 2) & (pick_2_2 == 1)):
@@ -1252,12 +1235,9 @@ def conditional_branch(x, y):
 
     # どちらかの親一個が子二人より優秀
     if ((pick_2_1 == 1) & (pick_2_2 != 2)) | ((pick_2_1 == 2) & (pick_2_2 != 1)):
-        if fitness_89_1_abs <= fitness_89_2_abs:
-            local_group.append([relay_local_group[0][0], relay_local_group[0][1], relay_local_group[0][2]])
-            local_group.append([cross_son[pick_2_2 - 3][0], cross_son[pick_2_2 - 3][1], cross_son[pick_2_2 - 3][2]])
-        else:
-            local_group.append([relay_local_group[1][0], relay_local_group[1][1], relay_local_group[1][2]])
-            local_group.append([cross_son[pick_2_2 - 3][0], cross_son[pick_2_2 - 3][1], cross_son[pick_2_2 - 3][2]])
+        local_group.append([relay_local_group[pick_2_1 - 1][0], relay_local_group[pick_2_1 - 1][1],
+                            relay_local_group[pick_2_1 - 1][2]])
+        local_group.append([cross_son[pick_2_2 - 3][0], cross_son[pick_2_2 - 3][1], cross_son[pick_2_2 - 3][2]])
 
     # どちらかの子一個が親より優秀(子1)子a>(親a or 親b)>子b
     if ((pick_2_1 == 3) & (pick_2_2 != 4)) | ((pick_2_1 == 4) & (pick_2_2 != 3)):
@@ -1305,6 +1285,8 @@ for j in range(4):
         break
     else:
         conditional_branch(local_group_rand_1, local_group_rand_2)
+        # 確認用
+        print("local_group確認:", local_group)
 
 # 最終世代
 finish_9 = cv2.imread("input_c.bmp", cv2.IMREAD_COLOR)
@@ -1326,6 +1308,7 @@ tile_relay(2, 6, 4, finish_0)
 cv2.imwrite('finish_0.png', finish_0)
 
 # 既存と提案手法の比較
+print("最終確認")
 print("いずれかの画像をアクティブにしescキーを押すと次に進みます")
 while 1:
     # 入力画像
@@ -1355,16 +1338,29 @@ while 1:
     if cv2.waitKey(20) & 0xFF == 27:
         pick_2_1 = input("一番好みの画像の番号:")
         pick_2_1 = int(pick_2_1)
-        if (pick_2_1 >= 1) & (pick_2_1 <= 4):
-            break
+        pick_2_2 = input("二番目に好みの画像の番号:")
+        pick_2_2 = int(pick_2_2)
+        if pick_2_1 != pick_2_2:
+            if (pick_2_1 >= 1) & (pick_2_1 <= 4):
+                if (pick_2_2 >= 1) & (pick_2_2 <= 4):
+                    break
         print("もう一度選択しなおしてください\nいずれかの画像をアクティブにしescキーで次に進みます")
         continue
 
 cv2.destroyAllWindows()
 
+print("一番目")
 if pick_2_1 == 1:
     print("従来")
 elif pick_2_1 == 2:
+    print("提案手法")
+else:
+    print("初期解")
+
+print("二番目")
+if pick_2_2 == 1:
+    print("従来")
+elif pick_2_2 == 2:
     print("提案手法")
 else:
     print("初期解")
