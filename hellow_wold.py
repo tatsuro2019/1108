@@ -764,7 +764,7 @@ cv2.imwrite('tile_0.png', tile_0)
 
 # R, G, Bの値を取得して0～1の範囲内にする
 [blue, green, red] = color_2[ca_y][ca_x]/255.0
-# R, G, Bの値から最大値を計算
+# R, G, Bの値から明度の最大値を計算
 mx_v1 = max(red, green, blue)
 
 # 同文b
@@ -1006,6 +1006,7 @@ else:
     cross_son = [[tile_resource[pick_1 - 1][0], tile_resource[pick_1 - 1][1], tile_resource[pick_2 - 1][2]],
                  [tile_resource[pick_2 - 1][0], tile_resource[pick_2 - 1][1], tile_resource[pick_1 - 1][2]]]
 
+#変更前（参照先無し）
 def cross_rand_made(a, b, c, d):
     cross_rand = random.randint(0, 98)
     if len(a) != 0:
@@ -1021,11 +1022,57 @@ def cross_rand_made(a, b, c, d):
         a.append([b[c][0], b[c][1], b[d][2]])
         a.append([b[d][0], b[d][1], b[c][2]])
 
+def cross_main(ik, b, c, d):
+    cross_moment_rand = random.randint(0, 99)
+    num_c = [int(x) for x in format(b[c][ik], '04b')]
+    print("10進数", b[c][ik])
+    print(num_c)
+    if (b[c][ik] != 0) & (b[c][ik] != 8):
+        if cross_moment_rand % 2 == 0:
+            num_c[0] = 1
+            print(num_c)
+    cross_moment_rand2 = random.randint(0, 99)
+    num_d = [int(x) for x in format(b[d][ik], '04b')]
+    print("10進数", b[d][ik])
+    print(num_d)
+    if (b[d][ik] != 0) & (b[d][ik] != 8):
+        if cross_moment_rand2 % 2 == 0:
+            num_d[0] = 1
+            print(num_d)
+    for i in range(4):
+        cross_moment_rand3 = random.randint(0, 99)
+        if cross_moment_rand3 % 2 == 0:
+            num_x = num_c[i]
+            num_c[i] = num_d[i]
+            num_d[i] = num_x
+    print(num_c, num_d)
+    numc_2to10 = (2*2*2*num_c[0])+(2*2*num_c[1])+(2*num_c[2])+(num_c[3])
+    if numc_2to10 > 8:
+        numc_2to10 -= 8
+    numd_2to10 = (2 * 2 * 2 * num_d[0]) + (2 * 2 * num_d[1]) + (2 * num_d[2]) + (num_d[3])
+    if numd_2to10 > 8:
+        numd_2to10 -= 8
+    return numc_2to10, numd_2to10
+
+
+def cross_rand_made2(a, b, c, d):
+    cross_change_moment =[0, 0, 0]
+    cross_change_moment2 = [0, 0, 0]
+    if len(a) != 0:
+        a.pop()
+        a.pop()
+    for i in range(3):
+        cross_change_moment[i], cross_change_moment2[i] = cross_main(i, b, c, d)
+        print("2進数交叉結果：", cross_change_moment[i], cross_change_moment2[i])
+    a.append([cross_change_moment[0], cross_change_moment[1], cross_change_moment[2]])
+    a.append([cross_change_moment2[0], cross_change_moment2[1], cross_change_moment2[2]])
+
 # 交叉確認用
 print("交叉")
 for i in range(2):
     print(cross_son[i][0], cross_son[i][1], cross_son[i][2])
 
+# 旧突然変異（未使用）
 def mutation_add_sort():
     # 突然変異
     # 行う個所数
@@ -1080,7 +1127,61 @@ def mutation_add_sort():
     for i in range(2):
         print(cross_son[i][0], cross_son[i][1], cross_son[i][2])
 
-mutation_add_sort()
+# 改定版突然変異
+def mutation_add_sort2():
+    # 突然変異する個体番号
+    mutation_rand = random.randint(0, 99) % 2
+
+    for i in range(3):
+        mutation_son = [int(x) for x in format(cross_son[mutation_rand][i], '04b')]
+        print("10進数", cross_son[mutation_rand][i])
+        print("mutation_son", mutation_son)
+        mutation_moment_rand = random.randint(0, 99) % 2
+        if (cross_son[mutation_rand][i] != 0) & (cross_son[mutation_rand][i] != 8):
+            if mutation_moment_rand == 0:
+                mutation_son[0] = 1
+                print(mutation_son)
+        for j in range(4):
+            mutation_change_rand = random.randint(0, 99) % 2
+            # 0の時突然変異
+            if mutation_change_rand == 0:
+                if mutation_son[j] == 0:
+                    mutation_son[j] = 1
+                else:
+                    mutation_son[j] = 0
+        print("突然変異後mutation_son：", mutation_son)
+        mutation_son_2to10 = (2 * 2 * 2 * mutation_son[0]) + (2 * 2 * mutation_son[1])\
+                             + (2 * mutation_son[2]) + (mutation_son[3])
+        if mutation_son_2to10 > 8:
+            mutation_son_2to10 -= 8
+        cross_son[mutation_rand][i] = mutation_son_2to10
+
+    # 突然変異確認用
+    print("突然変異後")
+    for i in range(2):
+        print(cross_son[i][0], cross_son[i][1], cross_son[i][2])
+
+    # ソート
+    # 最小,中間,最大でソート
+    for i in range(2):
+        for j in range(2):
+            for k in range(j + 1, 3):
+                if cross_son[i][j] > cross_son[i][k]:
+                    cross_change = cross_son[i][j]
+                    cross_son[i][j] = cross_son[i][k]
+                    cross_son[i][k] = cross_change
+    # 最小,最大,中間でソート
+    for i in range(2):
+        cross_change = cross_son[i][1]
+        cross_son[i][1] = cross_son[i][2]
+        cross_son[i][2] = cross_change
+
+    # ソート確認用
+    print("ソート")
+    for i in range(2):
+        print(cross_son[i][0], cross_son[i][1], cross_son[i][2])
+
+mutation_add_sort2()
 
 def picture_store():
     # 子をfinish_3,4に格納
@@ -1266,7 +1367,7 @@ for j in range(4):
         local_group_rand_2 = local_group_rand_change
 
     # 交叉
-    cross_rand_made(cross_son, local_group, local_group_rand_1, local_group_rand_2)
+    cross_rand_made2(cross_son, local_group, local_group_rand_1, local_group_rand_2)
     print("親A")
     print(local_group[local_group_rand_1][0], local_group[local_group_rand_1][1], local_group[local_group_rand_1][2])
     print("親B")
@@ -1276,7 +1377,7 @@ for j in range(4):
     for i in range(2):
         print(cross_son[i][0], cross_son[i][1], cross_son[i][2])
     # 突然変異
-    mutation_add_sort()
+    mutation_add_sort2()
     # 親世代画像
     set_picture_1_2(local_group, local_group_rand_1, local_group_rand_2)
     # 子世代画像
